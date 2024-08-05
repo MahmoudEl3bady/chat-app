@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    /* background-color: rgba(17, 25, 40, 0.75); */
+    @apply bg-slate-900 text-white;
+  }
+
+  .container {
+    @apply w-screen h-screen px-1 py-5;
+  }
+  .borderBottom {
+    border-bottom: 1px solid black;
+  }
+  .borderRight {
+    border-right: 1px solid black;
+  }
+}
