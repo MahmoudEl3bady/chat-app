@@ -4,7 +4,7 @@ const ChatList = () => {
       {/* Search Bar */}
       <div className="flex items-center gap-5 p-5 ">
         <div className="flex items-center gap-3 px-1 rounded-lg py-1 bg-slate-800">
-          <img src="/public/search.png" alt="" className="w-6 h-6" />
+          <img src="/search.png" alt="" className="w-6 h-6" />
           <input
             type="text"
             placeholder="Search"
@@ -12,7 +12,7 @@ const ChatList = () => {
           />
         </div>
         <button className="bg-slate-800 rounded-lg p-2">
-          <img src="/public/plus.png" className="w-6" alt="" />
+          <img src="/plus.png" className="w-6" alt="" />
         </button>
       </div>
       {/* Chats */}
@@ -34,7 +34,7 @@ function Chat({}) {
     <div className="flex items-center justify-between borderBottom  text-white rounded py-3 px-3 ">
       <div className="flex gap-2 items-center">
         <img
-          src="/public/avatar.png"
+          src="/avatar.png"
           alt=""
           className="w-12 h-12 rounded-full"
         />

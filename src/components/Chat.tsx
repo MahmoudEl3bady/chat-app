@@ -12,7 +12,7 @@ const Chat = () => {
   },[]);
 
   return (
-    <div className="flex flex-col w-[50%] borderRight relative">
+    <div className="flex flex-col w-[80%] borderRight relative">
       {/* Chat Header */}
       <header className="flex justify-between items-center px-4 py-5 borderBottom">
         <div className="flex items-center gap-5">
