@@ -1,15 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 const Chat = () => {
+  const initailMessages = [
+    { rec: true, body: "Hello" },
+    { rec: false, body: "Hi" },
+    {
+      rec: false,
+      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt, beatae!",
+    },
+    {
+      rec: true,
+      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt, beatae!",
+    },
+  ];
   const [text, setText] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const handleAddMessage = (e: any) => {
+  const [messages, setMessages] = useState(initailMessages);
+  const onEmojiClick = (e: any) => {
     setText((prev) => prev + e.emoji);
+  };
+
+  const handleAddMessage = () => {
+    if (!text) return;
+    setMessages([...messages, { rec: false, body: text }]);
+    setText("");
   };
   const endRef = useRef<any>(null);
   useEffect(() => {
-    endRef.current?.scrollIntoView({behavior: "smooth"});
-  },[]);
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
   return (
     <div className="flex flex-col w-[80%] borderRight relative">
@@ -35,25 +54,9 @@ const Chat = () => {
 
       {/* Chat Body */}
       <div className="flex flex-col gap-3 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
-        <Message />
-        <Message rec={true} />
-        <Message />
-        <Message rec={true} />
-        <Message rec={true} />
-        <Message rec={true} />
-        <Message />
-        <Message />
-        <Message />
-        <Message />
-        <Message rec={true} />
-        <Message />
-        <Message rec={true} />
-        <Message rec={true} />
-        <Message rec={true} />
-        <Message />
-        <Message />
-        <Message />
-        <Message rec={true} />
+        {messages.map((m, i) => (
+          <Message key={i} rec={m.rec} body={m.body} />
+        ))}
         <div ref={endRef}></div>
       </div>
 
@@ -76,32 +79,37 @@ const Chat = () => {
             <EmojiPicker
               open={isOpen}
               style={{ position: "absolute", right: "0", bottom: "55px" }}
-              onEmojiClick={handleAddMessage}
+              onEmojiClick={onEmojiClick}
             />
           </button>
-          <button className="bg-indigo-700 py-1 px-3 rounded">Send</button>
+          <button
+            onClick={handleAddMessage}
+            className="bg-indigo-700 py-1 px-3 rounded"
+          >
+            Send
+          </button>
         </div>
       </footer>
     </div>
   );
 };
 
-const Message = ({ rec }: { rec?: boolean }) => {
+const Message = ({ rec, body }: { rec?: boolean; body: string }) => {
   return (
     <div
       className={`flex items-center gap-3 ${
-        rec ? "justify-end" : "justify-start"
+        !rec ? "justify-end" : "justify-start"
       }`}
     >
       <img src="/public/avatar.png" alt="" className="w-12 h-12 rounded-full" />
       <div className="flex flex-col gap-5">
-        <span
-          className={`text-white text-sm p-2 rounded ${
-            rec ? "bg-blue-700" : "bg-gray-700"
+        <p
+          className={`text-white text-md p-2 rounded max-w-[40vw] ${
+            !rec ? "bg-blue-500" : "bg-gray-600"
           }`}
         >
-          Lorem ipsum dolor sit
-        </span>
+          {body}
+        </p>
       </div>
     </div>
   );
