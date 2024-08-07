@@ -1,49 +1,73 @@
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { User as FirebaseUser } from "firebase/auth";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
 
-// Define the structure of the user data
 export interface UserData {
-  name: string;
-  email: string;
-  profilePictureUrl: string;
-  status: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string|null;
+  lastSeen: Date;
 }
 
-// Create or update user data
-export const createUser = async (userId: string, userData: UserData) => {
-  try {
-    await setDoc(doc(db, "users", userId), userData);
-    console.log("User created/updated successfully");
-  } catch (error) {
-    console.error("Error creating/updating user:", error);
-  }
-};
+export class User {
+  private uid: string;
+  private data: UserData | null;
 
-// Retrieve user data
-export const getUser = async (userId: string): Promise<UserData | null> => {
-  try {
-    const userDoc = await getDoc(doc(db, "users", userId));
-    if (userDoc.exists()) {
-      return userDoc.data() as UserData;
-    } else {
-      console.log("No such user!");
-      return null;
+  constructor(user: FirebaseUser) {
+    this.uid = user.uid;
+    this.data = null;
+  }
+
+  async create(userData:UserData): Promise<void> {
+    const userRef = doc(db, "users", this.uid);
+   
+    await setDoc(userRef, userData);
+  }
+
+  async fetch(): Promise<UserData | null> {
+    const userRef = doc(db, "users", this.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      this.data = userSnap.data() as UserData;
+      return this.data;
     }
-  } catch (error) {
-    console.error("Error retrieving user:", error);
     return null;
   }
-};
 
-// Update user data
-export const updateUser = async (
-  userId: string,
-  updatedData: Partial<UserData>
-) => {
-  try {
-    await updateDoc(doc(db, "users", userId), updatedData);
-    console.log("User updated successfully");
-  } catch (error) {
-    console.error("Error updating user:", error);
+  async update(data: Partial<UserData>): Promise<void> {
+    const userRef = doc(db, "users", this.uid);
+    await updateDoc(userRef, {
+      ...data,
+      lastSeen: serverTimestamp(),
+    });
+    if (this.data) {
+      this.data = { ...this.data, ...data };
+    }
   }
-};
+
+  async updateLastSeen(): Promise<void> {
+    const userRef = doc(db, "users", this.uid);
+    await updateDoc(userRef, {
+      lastSeen: serverTimestamp(),
+    });
+    if (this.data) {
+      this.data.lastSeen = new Date();
+    }
+  }
+
+  getData(): UserData | null {
+    return this.data;
+  }
+
+  getUid(): string {
+    return this.uid;
+  }
+}
+
+export default User;

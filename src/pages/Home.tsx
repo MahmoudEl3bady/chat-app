@@ -1,5 +1,4 @@
 import List from "../components/List";
-import Detail from "../components/Detail";
 import Chat from "../components/Chat";
 import { User } from "firebase/auth";
 const Home = ({currentUser}:{currentUser:User}) => {
@@ -8,7 +7,6 @@ const Home = ({currentUser}:{currentUser:User}) => {
       {/* <h1 className="text-4xl">Welcome {currentUser?.displayName}</h1> */}
       <List currentUser={currentUser}/>
       <Chat />
-      {/* <Detail />  */}
     </div>
   );
 }
