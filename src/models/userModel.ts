@@ -13,6 +13,7 @@ export interface UserData {
   email: string | null;
   photoURL: string|null;
   lastSeen: Date;
+  uid: string | null;
 }
 
 export class User {

@@ -23,6 +23,7 @@ function App() {
         email: loggedUser?.email || null,
         photoURL: loggedUser?.photoURL||null,
         lastSeen: new Date(),
+        uid: loggedUser?.uid || null,
       };
       await user.create(userData);
     } catch (error) {

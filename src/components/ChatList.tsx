@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { ChatData, getChatsByUser } from "../models/chatModel";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import FormModal from "../UIComponents/Modal";
 
 const ChatList = ({currentUser}:{currentUser:User}) => {
-const [userChats,setUserChats] = useState<ChatData[]>();
+  const [userChats,setUserChats] = useState<ChatData[]>();
 useEffect(()=>{
     const CurrUserChats = getChatsByUser(currentUser.uid);
     CurrUserChats.then((chats)=>{
@@ -25,16 +26,17 @@ useEffect(()=>{
             className="bg-transparent px-2 py-1   text-white"
           />
         </div>
-        <button className="bg-slate-800 rounded-lg p-2">
-          <img src="/plus.png" className="w-6" alt="Plus" />
-        </button>
+        {/* <button className="bg-slate-800 rounded-lg p-2" onClick={onOpen}>
+          <img src="/plus.png" className="w-6" alt="Add Chat" />
+        </button> */}
+         <FormModal currentUser={currentUser} />
       </div>
       {/* Chats */}
-      <div className="flex flex-col gap-3 ">
+      <div className="flex flex-col gap-3 " key={currentUser.uid}>
      {
        userChats?.map((chat)=>{
          console.log(chat);
-         return <Chat key={chat.id} chat={chat} />
+         return <Chat chat={chat} />
        })
      }
       </div>
@@ -44,7 +46,7 @@ useEffect(()=>{
 
 export default ChatList;
 
-function Chat({ chat }: { chat: ChatData }) {
+function Chat({ chat  }: { chat: ChatData}) {
   const [participant, setParticipant] = useState<any>(null);
 
   useEffect(() => {

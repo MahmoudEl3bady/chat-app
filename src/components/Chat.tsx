@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
-const Chat = () => {
+const ActiveChat = () => {
   const initailMessages = [
     { rec: true, body: "Hello" },
     { rec: false, body: "Hi" },
@@ -115,4 +115,4 @@ const Message = ({ rec, body }: { rec?: boolean; body: string }) => {
   );
 };
 
-export default Chat;
+export default ActiveChat;

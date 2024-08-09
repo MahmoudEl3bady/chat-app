@@ -10,7 +10,7 @@
   }
   body {
     /* background-color: rgba(17, 25, 40, 0.75); */
-    @apply bg-slate-900 text-white;
+    @apply bg-slate-900 text-white ;
   }
 
   .container {
