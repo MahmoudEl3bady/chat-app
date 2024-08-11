@@ -1,44 +1,42 @@
-import { User } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ChatData, getChatsByUser } from "../models/chatModel";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import FormModal from "../UIComponents/Modal";
+import { useAuth } from "../hooks/useAuth";
+import { AppContext } from "../contexts/AppContext";
 
-const ChatList = ({currentUser}:{currentUser:User}) => {
-  const [userChats,setUserChats] = useState<ChatData[]>();
-useEffect(()=>{
-    const CurrUserChats = getChatsByUser(currentUser.uid);
-    CurrUserChats.then((chats)=>{
-      setUserChats(chats)
-    })
-  },[])
+const ChatList = () => {
+  const { currentUser } = useAuth();
+  
+  const [chats, setChats] = useState<ChatData[]>([]);
+
+  useEffect(() => {
+    const fetchUserChats = async () => {
+      const userChats = await getChatsByUser(currentUser?.uid);
+      setChats(userChats);
+    };
+
+    fetchUserChats();
+  }, [currentUser?.uid]);
 
   return (
-    <div className="flex flex-col gap-5 ">
-      {/* Search Bar */}
-      <div className="flex items-center gap-5 p-5 ">
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-5 p-5">
         <div className="flex items-center gap-3 px-1 rounded-lg py-1 bg-slate-800">
-          <img src="/search.png" alt="" className="w-6 h-6" />
+          <img src="/search.png" alt="Search" className="w-6 h-6" />
           <input
             type="text"
             placeholder="Search"
-            className="bg-transparent px-2 py-1   text-white"
+            className="bg-transparent px-2 py-1 text-white"
           />
         </div>
-        {/* <button className="bg-slate-800 rounded-lg p-2" onClick={onOpen}>
-          <img src="/plus.png" className="w-6" alt="Add Chat" />
-        </button> */}
-         <FormModal currentUser={currentUser} />
+        <FormModal />
       </div>
-      {/* Chats */}
-      <div className="flex flex-col gap-3 " key={currentUser.uid}>
-     {
-       userChats?.map((chat)=>{
-         console.log(chat);
-         return <Chat chat={chat} />
-       })
-     }
+      <div className="flex flex-col gap-3">
+        {chats.map((chat) => (
+          <Chat chat={chat} />
+        ))}
       </div>
     </div>
   );
@@ -46,8 +44,9 @@ useEffect(()=>{
 
 export default ChatList;
 
-function Chat({ chat  }: { chat: ChatData}) {
+function Chat({ chat }: { chat: ChatData }) {
   const [participant, setParticipant] = useState<any>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const fetchParticipant = async () => {
@@ -60,19 +59,25 @@ function Chat({ chat  }: { chat: ChatData}) {
     fetchParticipant();
   }, [chat]);
   return (
-    <div className="flex items-center justify-between border-b text-white rounded py-3 px-3">
-      <div className="flex gap-2 items-center">
-        <img
-          src={participant?.photoURL || "/avatar.png"}
-          alt=""
-          className="w-12 h-12 rounded-full"
-        />
-        <span className="text-white">{participant?.displayName} </span>
+    <>
+      <div
+        className="flex items-center justify-between border-b text-white rounded py-3 px-3"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex gap-2 items-center">
+          <img
+            src={participant?.photoURL || "/avatar.png"}
+            alt=""
+            className="w-12 h-12 rounded-full"
+          />
+          <span className="text-white">{participant?.displayName} </span>
+        </div>
+        <div className="text-sm flex flex-col items-end gap-2">
+          <p>{chat?.lastMessage || "No last message"}</p>
+          <p className="text-slate-400">200</p>
+        </div>
       </div>
-      <div className="text-sm flex flex-col items-end gap-2">
-        <p>{chat?.lastMessage || "No last message"}</p>
-        <p className="text-slate-400">200</p>
-      </div>
-    </div>
+      {/* {expanded ? <ActiveChat /> : ""} */}
+    </>
   );
 }

@@ -1,12 +1,11 @@
-import { User } from "firebase/auth"
 import ChatList from "./ChatList"
 import UserInfo from "./UserInfo"
 
-const List = ({currentUser}:{currentUser:User}) => {
+const List = () => {
   return (
     <div className="borderRight h-screen w-[30%]">
-       <UserInfo currentUser={currentUser}/>
-       <ChatList currentUser={currentUser} />
+       <UserInfo />
+       <ChatList  />
     </div>
   )
 }

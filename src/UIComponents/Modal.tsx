@@ -24,12 +24,15 @@ import { useState } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 import { db } from "../firebase";
 import { createChat } from "../models/chatModel";
-const FormModal = ({ currentUser }: { currentUser: FirebaseUser }) => {
+import { useAuth } from "../hooks/useAuth";
+const FormModal = () => {
+  const { currentUser } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [username, setUsername] = useState<string>("");
   const [foundusers, setFoundusers] = useState<any>([]);
-  const [participants, setParticipants] = useState<string[]>([]);
-  console.log(currentUser)
+  const [participants, setParticipants] = useState<string[]>([
+    currentUser?.uid,
+  ]);
   const handleSearch = async () => {
     try {
       const userRef = collection(db, "users");
@@ -48,7 +51,7 @@ const FormModal = ({ currentUser }: { currentUser: FirebaseUser }) => {
   };
 
   const handleAddNewChat = async (id: string) => {
-    const newParticipants = [id, currentUser.uid];
+    const newParticipants = participants ? [...participants, id] : [id];
     setParticipants(newParticipants);
 
     try {
@@ -61,7 +64,6 @@ const FormModal = ({ currentUser }: { currentUser: FirebaseUser }) => {
   };
   return (
     <>
-      {console.log(foundusers[0])}
       <button className="bg-slate-800 rounded-lg p-2" onClick={onOpen}>
         <img src="/plus.png" className="w-6" alt="Add Chat" />
       </button>

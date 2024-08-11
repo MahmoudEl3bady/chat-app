@@ -16,7 +16,7 @@ export interface UserData {
   uid: string | null;
 }
 
-export class User {
+ class User {
   private uid: string;
   private data: UserData | null;
 

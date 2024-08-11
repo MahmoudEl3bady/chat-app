@@ -54,7 +54,7 @@ export async function updateChatLastMessage(
   });
 }
 
-export const getChatsByUser = async (userId: string): Promise<ChatData[]> =>{
+export const getChatsByUser = async (userId: string | undefined): Promise<ChatData[]> =>{
   const chatsRef = collection(db, "chats");
   const q = query(chatsRef, where("participants", "array-contains", userId));
   const querySnapshot = await getDocs(q);
