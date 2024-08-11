@@ -1,14 +1,11 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, inMemoryPersistence } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyA6JnbHdFVz5dIFa7ZhCQrPO2P48R-GPHM",
   authDomain: "realtimechat-24014.firebaseapp.com",
@@ -23,6 +20,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+// Initialize Auth with custom settings
+const auth = getAuth(app);
+auth.useDeviceLanguage();
+
+// Set persistence to 'none' (in-memory) to prevent persistent sessions across tabs
+setPersistence(auth, inMemoryPersistence)
+  .then(() => {
+    // Existing and future Auth states are now persisted in-memory only.
+    // Closing the window would clear any existing state.
+    console.log("Firebase Auth persistence set to in-memory.");
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+  });
+
+// Initialize Firestore and Storage
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+export { auth, db, storage };

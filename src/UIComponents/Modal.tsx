@@ -24,11 +24,13 @@ import { useState } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 import { db } from "../firebase";
 import { createChat } from "../models/chatModel";
-const FormModal = ({currentUser}) => {
+import { useUser } from "../contexts/UserContext";
+const FormModal = () => {
+  const { currentUser } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [username, setUsername] = useState<string>("");
   const [foundusers, setFoundusers] = useState<any>([]);
-  const [participants, setParticipants] = useState<string[]>([
+  const [participants, setParticipants] = useState<any>([
     currentUser?.uid,
   ]);
   const handleSearch = async () => {

@@ -1,18 +1,19 @@
+// src/pages/Login.tsx
+import { useNavigate } from "react-router-dom";
 import User, { UserData } from "../models/userModel";
 import { auth } from "../firebase";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  User as firebaseUser,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useUser } from "../contexts/UserContext";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { currentUser } = useUser();
+
   const handleLogin = async () => {
     const googleAuthProvider = new GoogleAuthProvider();
     try {
       const signInResult = await signInWithPopup(auth, googleAuthProvider);
       const loggedUser = signInResult.user;
-      // setCurrentUser(loggedUser);
       const user = new User(loggedUser);
       const userData: UserData = {
         displayName: loggedUser?.displayName || null,
@@ -22,18 +23,24 @@ const Login = () => {
         uid: loggedUser?.uid || null,
       };
       await user.create(userData);
-       window.location.href = "/";
+      navigate("/");
     } catch (error) {
       console.error(error);
     }
   };
+
+  if (currentUser) {
+    navigate("/");
+    return null;
+  }
+
   return (
     <div className="flex justify-center items-center min-h-screen">
       <button
         onClick={handleLogin}
-        className="py-3 px-2 bg-gray-200 rounded font-bold  text-slate-900"
+        className="py-3 px-2 bg-gray-200 rounded font-bold text-slate-900"
       >
-        Sign in with google
+        Sign in with Google
       </button>
     </div>
   );
