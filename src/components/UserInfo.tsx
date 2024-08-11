@@ -1,13 +1,6 @@
-import { AppContext } from "../contexts/AppContext";
 import { useContext, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
 
-const UserInfo = () => {
-  const { currentUser } = useAuth();
-  const { loadUserData, user } = useContext(AppContext);
- useEffect(() => {
-      loadUserData(currentUser?.uid);
- }, []);
+const UserInfo = (user) => {
   return (
     <header className="flex gap-10 justify-between items-center px-2 py-5">
       <div className="flex items-center gap-5">

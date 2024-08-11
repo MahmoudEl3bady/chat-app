@@ -3,12 +3,8 @@ import { ChatData, getChatsByUser } from "../models/chatModel";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import FormModal from "../UIComponents/Modal";
-import { useAuth } from "../hooks/useAuth";
-import { AppContext } from "../contexts/AppContext";
 
-const ChatList = () => {
-  const { currentUser } = useAuth();
-  
+const ChatList = (currentUser) => {
   const [chats, setChats] = useState<ChatData[]>([]);
 
   useEffect(() => {

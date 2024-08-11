@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import { User } from "firebase/auth";
-import { useAuth } from "../hooks/useAuth";
 const ActiveChat = () => {
-  const { currentUser } = useAuth();
   const initailMessages = [
     { rec: true, body: "Hello" },
     { rec: false, body: "Hi" },
