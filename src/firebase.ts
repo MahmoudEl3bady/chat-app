@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth, setPersistence, inMemoryPersistence } from "firebase/auth";
+import { getAuth, setPersistence, inMemoryPersistence, browserSessionPersistence } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -16,26 +16,22 @@ const firebaseConfig = {
   measurementId: "G-PTLBV08328",
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Initialize Auth with custom settings
 const auth = getAuth(app);
 auth.useDeviceLanguage();
 
-// Set persistence to 'none' (in-memory) to prevent persistent sessions across tabs
-setPersistence(auth, inMemoryPersistence)
+// Use browserSessionPersistence instead of inMemoryPersistence
+setPersistence(auth, browserSessionPersistence)
   .then(() => {
-    // Existing and future Auth states are now persisted in-memory only.
-    // Closing the window would clear any existing state.
-    console.log("Firebase Auth persistence set to in-memory.");
+    console.log("Firebase Auth persistence set to browser session.");
   })
   .catch((error) => {
     console.error("Error setting persistence:", error);
   });
 
-// Initialize Firestore and Storage
 const db = getFirestore(app);
 const storage = getStorage(app);
 

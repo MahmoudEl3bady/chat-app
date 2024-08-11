@@ -6,7 +6,7 @@ import FormModal from "../UIComponents/Modal";
 import { useUser } from "../contexts/UserContext";
 
 const ChatList = () => {
-  const { currentUser }  = useUser();
+  const { currentUser } = useUser();
   const [chats, setChats] = useState<ChatData[]>([]);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const ChatList = () => {
       </div>
       <div className="flex flex-col gap-3">
         {chats.map((chat) => (
-          <Chat chat={chat} />
+          <Chat key={chat.createdAt.toDate().toISOString()} chat={chat} />
         ))}
       </div>
     </div>

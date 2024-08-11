@@ -1,5 +1,5 @@
 // src/components/ProtectedRoute.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 
@@ -8,17 +8,21 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const nav  = useNavigate();
+  const navigate = useNavigate();
   const { currentUser, loading } = useUser();
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      navigate("/login");
+    }
+  }, [currentUser, loading, navigate]);
 
   if (loading) {
     return <div className="text-white">Loading...</div>;
   }
 
   if (!currentUser) {
-     nav('/login');
-  }else{
-    console.log(currentUser)
+    return null; // Render nothing while redirecting
   }
 
   return <>{children}</>;

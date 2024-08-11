@@ -81,9 +81,9 @@ const FormModal = () => {
                 onChange={(e) => setUsername(e.target.value)}
               />
             </FormControl>
-            <div className="mt-4">
+            <ul className="mt-4">
               {foundusers.map((user: FirebaseUser) => (
-                <ul
+                <li
                   key={user.uid}
                   className="bg-slate-300 rounded-lg p-3 mt-3 flex justify-between "
                 >
@@ -101,9 +101,9 @@ const FormModal = () => {
                   >
                     Add to chat
                   </button>
-                </ul>
+                </li>
               ))}
-            </div>
+            </ul>
           </ModalBody>
 
           <ModalFooter>
