@@ -10,6 +10,7 @@ import {
   query,
   where,
   getDocs,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -54,10 +55,11 @@ export async function updateChatLastMessage(
   });
 }
 
-export const getChatsByUser = async (userId: string | undefined): Promise<ChatData[]> =>{
+export const getChatsByUser = (userId: string | undefined): any => {
   const chatsRef = collection(db, "chats");
   const q = query(chatsRef, where("participants", "array-contains", userId));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map((doc) => doc.data() as ChatData);
+  return onSnapshot(q, (querySnapshot) => {
+    return querySnapshot.docs.map((doc) => doc.data()) as ChatData[];
+  });
 }
 

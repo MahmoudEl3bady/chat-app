@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react";
-import { ChatData, getChatsByUser } from "../models/chatModel";
-import { doc, getDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { ChatData} from "../models/chatModel";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import FormModal from "../UIComponents/Modal";
 import { useUser } from "../contexts/UserContext";
@@ -10,12 +10,17 @@ const ChatList = () => {
   const [chats, setChats] = useState<ChatData[]>([]);
 
   useEffect(() => {
-    const fetchUserChats = async () => {
-      const userChats = await getChatsByUser(currentUser?.uid);
-      setChats(userChats);
-    };
+    const fetchUserChats = onSnapshot(
+      collection(db, "chats"),
+      (querySnapshot) => {
+        const userChats = querySnapshot.docs
+          .map((doc) => doc.data())
+          .filter((chat) => chat.participants.includes(currentUser?.uid));
+        setChats(userChats);
+      }
+    );
 
-    fetchUserChats();
+    return () => fetchUserChats();
   }, [currentUser?.uid]);
 
   return (
@@ -45,7 +50,6 @@ export default ChatList;
 function Chat({ chat }: { chat: ChatData }) {
   const [participant, setParticipant] = useState<any>(null);
   const [expanded, setExpanded] = useState(false);
-
   useEffect(() => {
     const fetchParticipant = async () => {
       const participantRef = doc(db, "users", chat.participants[1]);
@@ -75,7 +79,6 @@ function Chat({ chat }: { chat: ChatData }) {
           <p className="text-slate-400">200</p>
         </div>
       </div>
-      {/* {expanded ? <ActiveChat /> : ""} */}
     </>
   );
 }
