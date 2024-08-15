@@ -1,8 +1,11 @@
-// src/pages/Login.tsx
 import { useNavigate } from "react-router-dom";
-import User, { UserData } from "../models/userModel";
+import { createUser, fetchUser, UserData } from "../models/userModel";
 import { auth } from "../firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  User as FirebaseUser,
+} from "firebase/auth";
 import { useUser } from "../contexts/UserContext";
 
 const Login = () => {
@@ -13,19 +16,28 @@ const Login = () => {
     const googleAuthProvider = new GoogleAuthProvider();
     try {
       const signInResult = await signInWithPopup(auth, googleAuthProvider);
-      const loggedUser = signInResult.user;
-      const user = new User(loggedUser);
-      const userData: UserData = {
-        displayName: loggedUser?.displayName || null,
-        email: loggedUser?.email || null,
-        photoURL: loggedUser?.photoURL || null,
-        lastSeen: new Date(),
-        uid: loggedUser?.uid || null,
-      };
-      await user.create(userData);
+      const loggedUser: FirebaseUser = signInResult.user;
+
+      let user = await fetchUser(loggedUser.uid);
+
+      if (!user) {
+        const userData: UserData = {
+          displayName: loggedUser.displayName,
+          email: loggedUser.email,
+          photoURL: loggedUser.photoURL,
+          lastSeen: new Date(),
+          uid: loggedUser.uid,
+        };
+        await createUser(userData);
+        user = userData;
+      }
+
+      // Here you might want to set the user in your context
+      // setUser(user);
+
       navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error("Login error:", error);
     }
   };
 

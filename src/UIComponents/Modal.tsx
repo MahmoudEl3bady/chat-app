@@ -55,7 +55,7 @@ const FormModal = () => {
     setParticipants(newParticipants);
 
     try {
-      await createChat(newParticipants);
+     const chatId =  await createChat(newParticipants);
       console.log("User chat created");
       onClose();
     } catch (error) {

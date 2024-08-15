@@ -1,12 +1,11 @@
 import List from "../components/List";
-import ActiveChat from "../components/Chat";
-
+import ChatWindow from "../components/Chat";
+import { Outlet } from "react-router-dom";
 const Home = () => {
-  
   return (
     <div className=" flex justify-between ">
       <List />
-      <ActiveChat />
+      <Outlet />
     </div>
   );
 };

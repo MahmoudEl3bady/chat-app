@@ -15,7 +15,7 @@ import {
 import { db } from "../firebase";
 
 export interface ChatData {
-  id?: string;
+  chatId: string;
   participants: string[];
   createdAt: Timestamp;
   lastMessage: string;
@@ -25,6 +25,7 @@ export interface ChatData {
 export async function createChat(participants: string[]): Promise<string> {
   const chatRef = doc(collection(db, "chats"));
   const chatData: ChatData = {
+    chatId: chatRef.id,
     participants,
     createdAt: Timestamp.now(),
     lastMessage: "",

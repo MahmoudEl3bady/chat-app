@@ -1,37 +1,52 @@
 import { useEffect, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
-import { User } from "firebase/auth";
-const ActiveChat = () => {
-  const initailMessages = [
-    { rec: true, body: "Hello" },
-    { rec: false, body: "Hi" },
-    {
-      rec: false,
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt, beatae!",
-    },
-    {
-      rec: true,
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt, beatae!",
-    },
-  ];
+// import { MessageData } from "../models/messageModel";
+import { useParams } from "react-router-dom";
+import { ChatData, fetchChat } from "../models/chatModel";
+import { fetchUser, UserData } from "../models/userModel";
+
+const ChatWindow = () => {
   const [text, setText] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState(initailMessages);
-  const onEmojiClick = (e: any) => {
-    setText((prev) => prev + e.emoji);
+  const [chatData, setChatData] = useState<ChatData | null>(null);
+  const [participant, setParticipant] = useState<UserData | null>(null);
+  const { chatId } = useParams<{ chatId: string }>();
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadChatData = async () => {
+      if (chatId) {
+        try {
+          const data = await fetchChat(chatId);
+          setChatData(data);
+          // Assuming the current user is always the first participant
+          const participantId = data?.participants[1];
+          const participantData = await fetchUser(participantId!);
+          setParticipant(participantData);
+        } catch (error) {
+          console.error("Error fetching chat data:", error);
+        }
+      }
+    };
+
+    loadChatData();
+  }, [chatId]);
+
+  // useEffect(() => {
+  //   endRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [chatData?.messages]);
+
+  const onEmojiClick = (emojiObject: { emoji: string }) => {
+    setText((prev) => prev + emojiObject.emoji);
   };
 
   const handleAddMessage = () => {
-    // if (!text) return;
-    // setMessages([...messages, { rec: false, body: text }]);
-    // setText("");
-    
-
+    // Implement message sending logic here
   };
-  const endRef = useRef<any>(null);
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+
+  if (!chatData || !participant) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col w-[80%] borderRight relative">
@@ -44,8 +59,10 @@ const ActiveChat = () => {
             className="w-12 h-12 rounded-full"
           />
           <div className="flex flex-col  items-center">
-            <span className="text-white font-bold">John Doe</span>
-            <span className="text-green-600 text-sm">Online</span>
+            <span className="text-white font-bold">
+              {participant?.displayName}
+            </span>
+            <span className="text-green-600 text-sm">online</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -57,9 +74,9 @@ const ActiveChat = () => {
 
       {/* Chat Body */}
       <div className="flex flex-col gap-3 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
-        {messages.map((m, i) => (
-          <Message key={i} rec={m.rec} body={m.body} />
-        ))}
+        {/* {messages.map((m, i) => (
+          <Message key={i} />
+        ))} */}
         <div ref={endRef}></div>
       </div>
 
@@ -97,25 +114,9 @@ const ActiveChat = () => {
   );
 };
 
-const Message = ({ rec, body }: { rec?: boolean; body: string }) => {
-  return (
-    <div
-      className={`flex items-center gap-3 ${
-        !rec ? "justify-end" : "justify-start"
-      }`}
-    >
-      <img src="/public/avatar.png" alt="" className="w-12 h-12 rounded-full" />
-      <div className="flex flex-col gap-5">
-        <p
-          className={`text-white text-md p-2 rounded max-w-[40vw] ${
-            !rec ? "bg-blue-500" : "bg-gray-600"
-          }`}
-        >
-          {body}
-        </p>
-      </div>
-    </div>
-  );
+const Message = () => {
+  // Props => chatId,senderId , content
+  return;
 };
 
-export default ActiveChat;
+export default ChatWindow;

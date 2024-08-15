@@ -6,7 +6,7 @@ import { UserProvider } from "./contexts/UserContext";
 function App() {
   return (
     <UserProvider>
-      <RouterProvider router={router} />
+      <RouterProvider router={router}  />
     </UserProvider>
   );
 }

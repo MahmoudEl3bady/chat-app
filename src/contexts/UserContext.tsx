@@ -2,7 +2,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 import { auth } from "../firebase";
-import User, { UserData } from "../models/userModel";
+import  { fetchUser, UserData } from "../models/userModel";
 
 interface UserContextType {
   currentUser: FirebaseUser | null;
@@ -27,8 +27,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       setCurrentUser(user);
       if (user) {
-        const userInstance = new User(user);
-        const fetchedUserData = await userInstance.fetch();
+        const fetchedUserData = await fetchUser(user.uid); 
         setUserData(fetchedUserData);
       } else {
         setUserData(null);

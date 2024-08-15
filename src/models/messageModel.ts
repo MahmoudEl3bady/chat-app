@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
-interface MessageData {
+export interface MessageData {
   senderId: string;
   content: string;
   timestamp: Timestamp;

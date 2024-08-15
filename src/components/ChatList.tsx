@@ -4,6 +4,7 @@ import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import FormModal from "../UIComponents/Modal";
 import { useUser } from "../contexts/UserContext";
+import { Link } from "react-router-dom";
 
 const ChatList = () => {
   const { currentUser } = useUser();
@@ -38,7 +39,7 @@ const ChatList = () => {
       </div>
       <div className="flex flex-col gap-3">
         {chats.map((chat) => (
-          <Chat key={chat.createdAt.toDate().toISOString()} chat={chat} />
+          <Chat  key={chat.createdAt.toDate().toISOString()} chat={chat} />
         ))}
       </div>
     </div>
@@ -50,6 +51,7 @@ export default ChatList;
 function Chat({ chat }: { chat: ChatData }) {
   const [participant, setParticipant] = useState<any>(null);
   const [expanded, setExpanded] = useState(false);
+  console.log(chat);
   useEffect(() => {
     const fetchParticipant = async () => {
       const participantRef = doc(db, "users", chat.participants[1]);
@@ -61,7 +63,7 @@ function Chat({ chat }: { chat: ChatData }) {
     fetchParticipant();
   }, [chat]);
   return (
-    <>
+    <Link to={`/chat/${chat.chatId}`}>
       <div
         className="flex items-center justify-between border-b text-white rounded py-3 px-3"
         onClick={() => setExpanded(!expanded)}
@@ -79,6 +81,6 @@ function Chat({ chat }: { chat: ChatData }) {
           <p className="text-slate-400">200</p>
         </div>
       </div>
-    </>
+    </Link>
   );
 }

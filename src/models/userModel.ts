@@ -11,64 +11,61 @@ import { db } from "../firebase";
 export interface UserData {
   displayName: string | null;
   email: string | null;
-  photoURL: string|null;
+  photoURL: string | null;
   lastSeen: Date;
-  uid: string | null;
+  uid: string ;
 }
 
- class User {
-  private uid: string;
-  private data: UserData | null;
-
-  constructor(user: FirebaseUser) {
-    this.uid = user.uid;
-    this.data = null;
-  }
-
-  async create(userData:UserData): Promise<void> {
-    const userRef = doc(db, "users", this.uid);
-   
+export async function createUser(
+  userData: UserData
+): Promise<void> {
+  try {
+    const userRef = doc(db, "users", userData.uid);
     await setDoc(userRef, userData);
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw new Error("Failed to create user");
   }
+}
 
-  async fetch(): Promise<UserData | null> {
-    const userRef = doc(db, "users", this.uid);
+export async function fetchUser(uid: string ): Promise<UserData | null> {
+  try {
+    const userRef = doc(db, "users", uid);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
-      this.data = userSnap.data() as UserData;
-      return this.data;
+      return userSnap.data() as UserData;
     }
     return null;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw new Error("Failed to fetch user");
   }
+}
 
-  async update(data: Partial<UserData>): Promise<void> {
-    const userRef = doc(db, "users", this.uid);
+export async function updateUser(
+  uid: string,
+  data: Partial<UserData>
+): Promise<void> {
+  try {
+    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, {
       ...data,
       lastSeen: serverTimestamp(),
     });
-    if (this.data) {
-      this.data = { ...this.data, ...data };
-    }
-  }
-
-  async updateLastSeen(): Promise<void> {
-    const userRef = doc(db, "users", this.uid);
-    await updateDoc(userRef, {
-      lastSeen: serverTimestamp(),
-    });
-    if (this.data) {
-      this.data.lastSeen = new Date();
-    }
-  }
-
-  getData(): UserData | null {
-    return this.data;
-  }
-
-  getUid(): string {
-    return this.uid;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw new Error("Failed to update user");
   }
 }
 
-export default User;
+export async function updateUserLastSeen(uid: string): Promise<void> {
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, {
+      lastSeen: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error updating user last seen:", error);
+    throw new Error("Failed to update user last seen");
+  }
+}
