@@ -9,17 +9,20 @@ import {
   getDocs,
   Timestamp,
   where,
+  updateDoc,
+  doc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
 export interface MessageData {
   senderId: string;
   content: string;
-  timestamp: Timestamp;
+  createdAt: Date;
   read: boolean;
 }
 
-export async function createMessage(
+export async function sendMessage(
   chatId: string,
   senderId: string,
   content: string
@@ -27,15 +30,26 @@ export async function createMessage(
   const messageData: MessageData = {
     senderId,
     content,
-    timestamp: Timestamp.now(),
+    createdAt: new Date(),
     read: false,
   };
-  const docRef = await addDoc(
+
+  // Add the message to the messages subcollection
+  const messageRef = await addDoc(
     collection(db, "chats", chatId, "messages"),
     messageData
   );
-  return docRef.id;
+
+  // Update the chat document with the last message info
+  const chatRef = doc(db, "chats", chatId);
+  await updateDoc(chatRef, {
+    lastMessage: content,
+    lastMessageTimestamp: serverTimestamp(),
+  });
+
+  return messageRef.id;
 }
+
 
 export async function getRecentMessages(
   chatId: string,

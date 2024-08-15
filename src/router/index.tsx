@@ -7,7 +7,7 @@ import {
 import Login from "../pages/Login";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Home from "../pages/Home";
-import ChatWindow from "../components/Chat";
+import ChatWindow from "../components/ChatWindow";
 
 const router = createBrowserRouter(
   createRoutesFromElements(

@@ -17,7 +17,7 @@ const ChatList = () => {
         const userChats = querySnapshot.docs
           .map((doc) => doc.data())
           .filter((chat) => chat.participants.includes(currentUser?.uid));
-        setChats(userChats);
+        setChats(userChats as ChatData[]);
       }
     );
 
