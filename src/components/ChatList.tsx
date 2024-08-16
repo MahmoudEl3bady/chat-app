@@ -25,7 +25,7 @@ const ChatList = () => {
   }, [currentUser?.uid]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <aside className="flex flex-col gap-5">
       <div className="flex items-center gap-5 p-5">
         <div className="flex items-center gap-3 px-1 rounded-lg py-1 bg-slate-800">
           <img src="/search.png" alt="Search" className="w-6 h-6" />
@@ -42,7 +42,7 @@ const ChatList = () => {
           <Chat  key={chat.createdAt.toDate().toISOString()} chat={chat} />
         ))}
       </div>
-    </div>
+    </aside>
   );
 };
 
@@ -51,13 +51,14 @@ export default ChatList;
 function Chat({ chat }: { chat: ChatData }) {
   const [participant, setParticipant] = useState<any>(null);
   const [expanded, setExpanded] = useState(false);
-  console.log(chat);
+  const { currentUser } = useUser();
   useEffect(() => {
     const fetchParticipant = async () => {
-      const participantRef = doc(db, "users", chat.participants[1]);
-      const participantSnapshot = await getDoc(participantRef);
-      setParticipant(participantSnapshot.data());
-      console.log(participantSnapshot.data());
+      const participantId = chat?.participants.find((id)=>id!==currentUser?.uid);
+      if (participantId) {
+        const participantData = await getDoc(doc(db, "users", participantId));
+        setParticipant(participantData.data());
+      }
     };
 
     fetchParticipant();
@@ -77,8 +78,8 @@ function Chat({ chat }: { chat: ChatData }) {
           <span className="text-white">{participant?.displayName} </span>
         </div>
         <div className="text-sm flex flex-col items-end gap-2">
-          <p>{chat?.lastMessage || "No last message"}</p>
-          <p className="text-slate-400">200</p>
+          <p>{chat.lastMessage.length>20 ? chat?.lastMessage.substring(0,20):chat?.lastMessage}</p>
+          <p className="text-slate-400">{new Date(chat.lastMessageTimestamp?.toDate()).toLocaleString().split(",")[1]}</p>
         </div>
       </div>
     </Link>

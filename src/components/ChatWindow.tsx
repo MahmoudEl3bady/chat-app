@@ -8,6 +8,7 @@ import { MessageData, sendMessage } from "../models/messageModel";
 import { useUser } from "../contexts/UserContext";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../firebase";
+import { useToast } from "@chakra-ui/react";
 
 const ChatWindow = () => {
   const [message, setMessage] = useState("");
@@ -19,9 +20,12 @@ const ChatWindow = () => {
   const { currentUser } = useUser();
   const [messages, setMessages] = useState<MessageData[]>([]);
 
+  const toast = useToast();
+  const getParticipantLastSeen = () => {
+    //TODO : Parse the lastseen of the chat user and if it same as current timestamp displays "online"
+  };
   useEffect(() => {
     const loadChatData = async () => {
-       console.log("loadChatData called with chatId:", chatId);
       if (chatId) {
         try {
           const data = await fetchChat(chatId);
@@ -39,9 +43,7 @@ const ChatWindow = () => {
           const messagesRef = collection(db, "chats", chatId, "messages");
           // console.log("Messages collection reference:", messagesRef);
           const q = query(messagesRef, orderBy("createdAt", "asc"));
-        const unsubscribe = onSnapshot(
-         q,
-          (snapshot) => {
+          const unsubscribe = onSnapshot(q, (snapshot) => {
             const newMessages = snapshot.docs.map((doc) => {
               const data = doc.data();
               return {
@@ -52,12 +54,9 @@ const ChatWindow = () => {
               } as MessageData;
             });
             // console.log(snapshot.docs);
-            console.log("New messages:", newMessages);
 
             setMessages(newMessages);
-          }
-        );
-
+          });
           // Clean up listener on unmount
           return () => unsubscribe();
         } catch (error) {
@@ -69,9 +68,9 @@ const ChatWindow = () => {
     loadChatData();
   }, [chatId, currentUser]);
 
-  // useEffect(() => {
-  //   endRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [chatData?.messages]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const onEmojiClick = (emojiObject: { emoji: string }) => {
     setMessage((prev) => prev + emojiObject.emoji);
@@ -79,9 +78,14 @@ const ChatWindow = () => {
 
   const handleSendMessage = async () => {
     if (!chatId || !currentUser || !message.trim()) {
-      console.error(
-        "Cannot send message: missing chatId, currentUser, or message content"
-      );
+      toast({
+        title: "Failed to send message",
+        description: "Message cannot be empty",
+        status: "error",
+        duration: 1000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
@@ -111,7 +115,11 @@ const ChatWindow = () => {
             <span className="text-white font-bold">
               {participant?.displayName}
             </span>
-            <span className="text-green-600 text-sm">Online</span>
+            <span className="text-green-600 text-sm">
+              {new Date(participant.lastSeen)
+                .toLocaleString()
+                .split(",")[1]}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -123,7 +131,9 @@ const ChatWindow = () => {
 
       {/* Chat Body */}
       <div className="flex flex-col gap-3 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
-        {messages.map(message =><Message message={message}/>)}
+        {messages.map((message) => (
+          <Message message={message}  />
+        ))}
         <div ref={endRef}></div>
       </div>
 
@@ -139,6 +149,11 @@ const ChatWindow = () => {
           className="w-[73%] bg-slate-800 px-3 py-2 rounded"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSendMessage();
+            }
+          }}
         />
         <div className="flex items-center gap-3">
           <button onClick={() => setIsOpen(!isOpen)}>
@@ -173,10 +188,8 @@ const Message = ({ message }: { message: MessageData }) => {
     >
       <div
         className={`${
-          message.senderId === currentUser?.uid
-            ? "bg-indigo-600"
-            : "bg-white"
-        } p-3 rounded-3xl`}
+          message.senderId === currentUser?.uid ? "bg-blue-600" : "bg-slate-600"
+        } p-2 rounded-xl text-white max-w-[60%]`}
       >
         <span className="text-white">{message.content}</span>
       </div>
