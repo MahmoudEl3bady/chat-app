@@ -49,7 +49,7 @@ const ChatWindow = () => {
               return {
                 senderId: data.senderId,
                 content: data.content,
-                createdAt: data.timestamp?.toDate(), // Convert Firestore Timestamp to Date
+                createdAt: data.createdAt?.toDate(), // Convert Firestore Timestamp to Date
                 read: data.read,
               } as MessageData;
             });
@@ -116,9 +116,7 @@ const ChatWindow = () => {
               {participant?.displayName}
             </span>
             <span className="text-green-600 text-sm">
-              {new Date(participant.lastSeen)
-                .toLocaleString()
-                .split(",")[1]}
+              {new Date(participant.lastSeen).toLocaleString().split(",")[1]}
             </span>
           </div>
         </div>
@@ -132,7 +130,7 @@ const ChatWindow = () => {
       {/* Chat Body */}
       <div className="flex flex-col gap-3 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
         {messages.map((message) => (
-          <Message message={message}  />
+          <Message message={message} key={message.createdAt.getTime()} />
         ))}
         <div ref={endRef}></div>
       </div>
@@ -157,7 +155,7 @@ const ChatWindow = () => {
         />
         <div className="flex items-center gap-3">
           <button onClick={() => setIsOpen(!isOpen)}>
-            <img src="/public/emoji.png" alt="" className="w-5 h-5 rounded" />
+            <img src="/emoji.png" alt="" className="w-5 h-5 rounded" />
             <EmojiPicker
               open={isOpen}
               style={{ position: "absolute", right: "0", bottom: "55px" }}

@@ -1,4 +1,6 @@
+import { signOut } from "firebase/auth";
 import { useUser } from "../contexts/UserContext";
+import { auth } from "../firebase";
 
 const UserInfo = () => {
   const {userData } =useUser();
@@ -13,9 +15,7 @@ const UserInfo = () => {
         <div className="text-white">{userData?.displayName}</div>
       </div>
       <div className="flex gap-4">
-        <img src="/more.png" className="w-6 h-6 " alt="" />
-        <img src="/video.png" className="w-6 h-6 " alt="" />
-        <img src="/edit.png" className="w-6 h-6 " alt="" />
+        <button onClick={() => signOut(auth)} className="text-white font-bold bg-gray-900 hover:bg-black px-4 py-2 rounded">Logout</button>
       </div>
     </header>
   );

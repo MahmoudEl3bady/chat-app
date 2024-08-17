@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 const ChatList = () => {
   const { currentUser } = useUser();
   const [chats, setChats] = useState<ChatData[]>([]);
-
+  const [search,setSearch] = useState('');
   useEffect(() => {
     const fetchUserChats = onSnapshot(
       collection(db, "chats"),
@@ -33,6 +33,8 @@ const ChatList = () => {
             type="text"
             placeholder="Search"
             className="bg-transparent px-2 py-1 text-white"
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
           />
         </div>
         <FormModal />
