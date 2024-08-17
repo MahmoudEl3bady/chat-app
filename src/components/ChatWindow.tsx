@@ -21,9 +21,11 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useToast } from "@chakra-ui/react";
@@ -120,22 +122,86 @@ const ChatWindow = () => {
   if (!chatData || !participant) {
     return <div>Loading...</div>;
   }
-  const handleDeleteChat = async (chatId: string) => {
+   const handleDeleteChat = async (chatId: string) => {
+     if (
+       window.confirm(
+         "Are you sure you want to delete this chat? This action cannot be undone."
+       )
+     ) {
+       try {
+         const chatRef = doc(db, "chats", chatId);
+
+         // Delete all messages in the chat
+         const messagesRef = collection(chatRef, "messages");
+         const messagesSnapshot = await getDocs(messagesRef);
+         const batch = writeBatch(db);
+
+         messagesSnapshot.docs.forEach((doc) => {
+           batch.delete(doc.ref);
+         });
+
+         await batch.commit();
+
+         // Delete the chat document
+         await deleteDoc(chatRef);
+
+         toast({
+           position: "top",
+           title: "Chat deleted successfully",
+           status: "success",
+           duration: 3000,
+           isClosable: true,
+         });
+
+         navigate("/");
+       } catch (error) {
+         console.error("Error deleting chat:", error);
+         toast({
+           position: "top",
+           title: "Error deleting chat",
+           status: "error",
+           duration: 3000,
+           isClosable: true,
+         });
+       }
+     }
+   };
+
+  const handleClearChat = async (chatId: string) => {
     if (
       window.confirm(
-        "Are you sure you want to delete this chat? This action cannot be undone."
+        "Are you sure you want to clear all messages in this chat? This action cannot be undone."
       )
     ) {
-      const chatRef = doc(db, "chats", chatId);
-      await deleteDoc(chatRef);
-      toast({
-        position: "top",
-        title: "Chat deleted successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      })
-      navigate("/");
+      try {
+        const chatRef = doc(db, "chats", chatId);
+        const messagesRef = collection(chatRef, "messages");
+        const messagesSnapshot = await getDocs(messagesRef);
+        const batch = writeBatch(db);
+
+        messagesSnapshot.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        
+        toast({
+          position: "top",
+          title: "Chat cleared successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (error) {
+        console.error("Error clearing chat:", error);
+        toast({
+          position: "top",
+          title: "Error clearing chat",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     }
   };
 
@@ -172,7 +238,7 @@ const ChatWindow = () => {
               <CiMenuKebab size={24} />
             </MenuButton>
             <MenuList>
-              <MenuItem>Clear Chat</MenuItem>
+              <MenuItem onClick={() => handleClearChat(chatId!)}>Clear Chat</MenuItem>
               <MenuItem onClick={() => handleDeleteChat(chatId!)}>
                 Delete Chat
               </MenuItem>

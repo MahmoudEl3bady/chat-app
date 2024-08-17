@@ -3,24 +3,21 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   useDisclosure,
   FormControl,
   FormLabel,
   Input,
+  useToast,
 } from "@chakra-ui/react";
 import {
-  addDoc,
   collection,
-  doc,
-  getDoc,
   getDocs,
   query,
   where,
 } from "firebase/firestore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 import { db } from "../firebase";
 import { createChat } from "../models/chatModel";
@@ -28,20 +25,19 @@ import { useUser } from "../contexts/UserContext";
 const FormModal = () => {
   const { currentUser } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [username, setUsername] = useState<string>("");
+  const [search, setSearch] = useState<string>("");
   const [foundusers, setFoundusers] = useState<any>([]);
-  const [participants, setParticipants] = useState<any>([
-    currentUser?.uid,
-  ]);
+  const toast = useToast();
+
   const handleSearch = async () => {
     try {
       const userRef = collection(db, "users");
-      const q = query(userRef, where("displayName", ">=", username));
+      const q = query(userRef, where("displayName", ">=", search));
       const querySnapshot = await getDocs(q);
       const matchingUsers = querySnapshot.docs
         .map((doc) => doc.data())
         .filter((user) =>
-          user.displayName.toLowerCase().includes(username.toLowerCase())
+          user.displayName.toLowerCase().includes(search.trim().toLowerCase())
         );
       setFoundusers(matchingUsers);
       console.log(matchingUsers);
@@ -50,16 +46,35 @@ const FormModal = () => {
     }
   };
 
-  const handleAddNewChat = async (id: string) => {
-    const newParticipants = participants ? [...participants, id] : [id];
-    setParticipants(newParticipants);
+  useEffect(() => {
+    if (search.length > 0) {
+      handleSearch();
+    } else {
+      setFoundusers([]);
+    }
+  }, [search]);
 
+  const handleAddNewChat = async (id: string) => {
     try {
-     const chatId =  await createChat(newParticipants);
-      console.log("User chat created");
+      const participants: any = [currentUser?.uid, id].filter(Boolean);
+      await createChat(participants);
+      toast({
+        title: "Chat created successfully",
+        status: "success",
+        duration: 3000,
+        position: "top",
+        isClosable: true,
+      });
       onClose();
     } catch (error) {
       console.error("Error creating chat:", error);
+      toast({
+        title: "Error creating chat",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
     }
   };
   return (
@@ -77,43 +92,46 @@ const FormModal = () => {
               <FormLabel>Username</FormLabel>
               <Input
                 placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
             </FormControl>
             <ul className="mt-4">
-              {foundusers.map((user: FirebaseUser) => (
-                <li
-                  key={user.uid}
-                  className="bg-slate-300 rounded-lg p-3 mt-3 flex justify-between "
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={user.photoURL || "/avatar.png"}
-                      className="w-10 h-10 rounded-full"
-                      alt=""
-                    />
-                    <p className="text-md font-semibold">{user.displayName}</p>
-                  </div>
-                  <button
-                    onClick={() => handleAddNewChat(user.uid)}
-                    className="bg-blue-700 text-sm text-semibold px-1 text-white rounded"
-                  >
-                    Add to chat
-                  </button>
-                </li>
-              ))}
+              {foundusers.length > 0 ? (
+                foundusers.map(
+                  (user: FirebaseUser) => (
+                    console.log(user),
+                    (
+                      <li
+                        key={user.uid}
+                        className="bg-slate-300 rounded-lg p-3 mt-3 flex justify-between "
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={user.photoURL || "/avatar.png"}
+                            className="w-10 h-10 rounded-full"
+                            alt=""
+                          />
+                          <p className="text-md font-semibold">
+                            {user.displayName}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleAddNewChat(user.uid)}
+                          className="bg-blue-700 text-sm text-semibold px-1 text-white rounded"
+                        >
+                          Add to chat
+                        </button>
+                      </li>
+                    )
+                  )
+                )
+              ) : (
+                <h2 className="text-center text-xl text-red-600">No users found!</h2>
+              )}
             </ul>
           </ModalBody>
-
-          <ModalFooter>
-            <button
-              className="bg-blue-700 text-white  rounded-lg p-2"
-              onClick={handleSearch}
-            >
-              Search
-            </button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
@@ -121,3 +139,4 @@ const FormModal = () => {
 };
 
 export default FormModal;
+
