@@ -1,16 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 // import { MessageData } from "../models/messageModel";
-import { useParams } from "react-router-dom";
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuDivider,
+  Button,
+} from "@chakra-ui/react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChatData, fetchChat } from "../models/chatModel";
 import { fetchUser, UserData } from "../models/userModel";
 import { MessageData, sendMessage } from "../models/messageModel";
 import { useUser } from "../contexts/UserContext";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { useToast } from "@chakra-ui/react";
+import { CiMenuKebab, CiSearch } from "react-icons/ci";
 
 const ChatWindow = () => {
+  // const {onOpen,isOpen,onClose} = useDisclosure();
   const [message, setMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [chatData, setChatData] = useState<ChatData | null>(null);
@@ -19,7 +39,7 @@ const ChatWindow = () => {
   const endRef = useRef<HTMLDivElement>(null);
   const { currentUser } = useUser();
   const [messages, setMessages] = useState<MessageData[]>([]);
-
+  const navigate = useNavigate();
   const toast = useToast();
   const getParticipantLastSeen = () => {
     //TODO : Parse the lastseen of the chat user and if it same as current timestamp displays "online"
@@ -100,6 +120,24 @@ const ChatWindow = () => {
   if (!chatData || !participant) {
     return <div>Loading...</div>;
   }
+  const handleDeleteChat = async (chatId: string) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this chat? This action cannot be undone."
+      )
+    ) {
+      const chatRef = doc(db, "chats", chatId);
+      await deleteDoc(chatRef);
+      toast({
+        position: "top",
+        title: "Chat deleted successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      })
+      navigate("/");
+    }
+  };
 
   return (
     <div className="flex flex-col w-[80%] borderRight relative">
@@ -121,9 +159,25 @@ const ChatWindow = () => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <img src="/phone.png" alt="" className="w-5 h-5" />
-          <img src="/video.png" alt="" className="w-5 h-5" />
-          <img src="/info.png" alt="" className="w-5 h-5" />
+          <CiSearch style={{ color: "white" }} size={24} />
+          <Menu>
+            <MenuButton
+              as={Button}
+              style={{
+                backgroundColor: "transparent",
+                color: "white",
+                border: "none",
+              }}
+            >
+              <CiMenuKebab size={24} />
+            </MenuButton>
+            <MenuList>
+              <MenuItem>Clear Chat</MenuItem>
+              <MenuItem onClick={() => handleDeleteChat(chatId!)}>
+                Delete Chat
+              </MenuItem>
+            </MenuList>
+          </Menu>
         </div>
       </header>
 
