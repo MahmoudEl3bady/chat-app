@@ -6,12 +6,13 @@ import {
   signInWithPopup,
   User as FirebaseUser,
 } from "firebase/auth";
+import { useToast } from "@chakra-ui/react";
+import { FcGoogle } from "react-icons/fc";
 import { useUser } from "../contexts/UserContext";
-
 const Login = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { currentUser } = useUser();
-
   const handleLogin = async () => {
     const googleAuthProvider = new GoogleAuthProvider();
     try {
@@ -19,7 +20,6 @@ const Login = () => {
       const loggedUser: FirebaseUser = signInResult.user;
 
       let user = await fetchUser(loggedUser.uid);
-
       if (!user) {
         const userData: UserData = {
           displayName: loggedUser.displayName,
@@ -31,13 +31,21 @@ const Login = () => {
         await createUser(userData);
         user = userData;
       }
-
-      // Here you might want to set the user in your context
-      // setUser(user);
-
+      toast({
+        title: `Welcome , ${user.displayName}!`,
+        position: "top-right",
+        status: "success",
+        isClosable: true,
+        duration: 3000,
+      });
       navigate("/");
     } catch (error) {
-      console.error("Login error:", error);
+      toast({
+        title:error as string,
+        position: "top-right",
+        status: "error",
+        duration: 3000,
+      });
     }
   };
 
@@ -50,9 +58,10 @@ const Login = () => {
     <div className="flex justify-center items-center min-h-screen">
       <button
         onClick={handleLogin}
-        className="py-3 px-2 bg-gray-200 rounded font-bold text-slate-900"
+        className="flex gap-2 items-center py-3 px-2 bg-gray-200 rounded font-bold text-slate-900"
       >
-        Sign in with Google
+        Sign in with 
+        <FcGoogle size={24}/>
       </button>
     </div>
   );

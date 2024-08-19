@@ -101,7 +101,6 @@ const FormModal = () => {
               {foundusers.length > 0 ? (
                 foundusers.map(
                   (user: FirebaseUser) => (
-                    console.log(user),
                     (
                       <li
                         key={user.uid}
