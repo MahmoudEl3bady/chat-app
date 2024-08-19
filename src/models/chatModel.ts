@@ -11,6 +11,8 @@ import {
   where,
   getDocs,
   onSnapshot,
+  writeBatch,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -64,3 +66,22 @@ export const getChatsByUser = (userId: string | undefined): any => {
   });
 }
 
+
+
+export const deleteChat = async (chatId: string) => {
+  const chatRef = doc(db, "chats", chatId);
+
+  // Delete all messages in the chat
+  const messagesRef = collection(chatRef, "messages");
+  const messagesSnapshot = await getDocs(messagesRef);
+  const batch = writeBatch(db);
+
+  messagesSnapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  await batch.commit();
+
+  // Delete the chat document
+  await deleteDoc(chatRef);
+}

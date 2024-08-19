@@ -11,24 +11,20 @@ import {
   Input,
   useToast,
 } from "@chakra-ui/react";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 import { db } from "../firebase";
 import { createChat } from "../models/chatModel";
 import { useUser } from "../contexts/UserContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 const FormModal = () => {
   const { currentUser } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [search, setSearch] = useState<string>("");
   const [foundusers, setFoundusers] = useState<any>([]);
   const toast = useToast();
-
+  const queryClient = useQueryClient();
   const handleSearch = async () => {
     try {
       const userRef = collection(db, "users");
@@ -45,7 +41,6 @@ const FormModal = () => {
       console.log(error);
     }
   };
-
   useEffect(() => {
     if (search.length > 0) {
       handleSearch();
@@ -54,10 +49,11 @@ const FormModal = () => {
     }
   }, [search]);
 
-  const handleAddNewChat = async (id: string) => {
-    try {
-      const participants: any = [currentUser?.uid, id].filter(Boolean);
-      await createChat(participants);
+  const createChatMutation = useMutation({
+    mutationFn: (participants: string[]) => createChat(participants),
+    onSuccess: () => {
+      // Invalidate and refetch the chats query
+      queryClient.invalidateQueries({ queryKey: ["chats", currentUser?.uid] });
       toast({
         title: "Chat created successfully",
         status: "success",
@@ -66,7 +62,8 @@ const FormModal = () => {
         isClosable: true,
       });
       onClose();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Error creating chat:", error);
       toast({
         title: "Error creating chat",
@@ -74,8 +71,11 @@ const FormModal = () => {
         duration: 3000,
         isClosable: true,
       });
-    } finally {
-    }
+    },
+  });
+  const handleAddNewChat = async (id: string) => {
+    const participants: any = [currentUser?.uid, id].filter(Boolean);
+    await createChatMutation.mutateAsync(participants);
   };
   return (
     <>
@@ -99,35 +99,33 @@ const FormModal = () => {
             </FormControl>
             <ul className="mt-4">
               {foundusers.length > 0 ? (
-                foundusers.map(
-                  (user: FirebaseUser) => (
-                    (
-                      <li
-                        key={user.uid}
-                        className="bg-slate-300 rounded-lg p-3 mt-3 flex justify-between "
-                      >
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={user.photoURL || "/avatar.png"}
-                            className="w-10 h-10 rounded-full"
-                            alt=""
-                          />
-                          <p className="text-md font-semibold">
-                            {user.displayName}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleAddNewChat(user.uid)}
-                          className="bg-blue-700 text-sm text-semibold px-1 text-white rounded"
-                        >
-                          Add to chat
-                        </button>
-                      </li>
-                    )
-                  )
-                )
+                foundusers.map((user: FirebaseUser) => (
+                  <li
+                    key={user.uid}
+                    className="bg-slate-300 rounded-lg p-3 mt-3 flex justify-between "
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={user.photoURL || "/avatar.png"}
+                        className="w-10 h-10 rounded-full"
+                        alt=""
+                      />
+                      <p className="text-md font-semibold">
+                        {user.displayName}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleAddNewChat(user.uid)}
+                      className="bg-blue-700 text-sm text-semibold px-1 text-white rounded"
+                    >
+                      Add to chat
+                    </button>
+                  </li>
+                ))
               ) : (
-                <h2 className="text-center text-xl text-red-600">No users found!</h2>
+                <h2 className="text-center text-xl text-red-600">
+                  No users found!
+                </h2>
               )}
             </ul>
           </ModalBody>
@@ -138,4 +136,3 @@ const FormModal = () => {
 };
 
 export default FormModal;
-
