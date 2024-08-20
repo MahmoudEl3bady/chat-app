@@ -25,6 +25,7 @@ import { db } from "../firebase";
 import { CiMenuKebab, CiSearch } from "react-icons/ci";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import MessageInput from "../UIComponents/MessageInput";
+import Message from "./Message";
 
 const ChatWindow = () => {
   const [chatData, setChatData] = useState<ChatData | null>(null);
@@ -157,16 +158,16 @@ const ChatWindow = () => {
   }, [chatId, currentUser]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    endRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
   if (!chatData || !participant) {
     return <div>Loading...</div>;
   }
   return (
-    <div className="flex flex-col w-[80%] borderRight relative">
+    <div className="flex flex-col w-[80%] h-screen borderRight relative">
       {/* Chat Header */}
-      <header className="flex justify-between items-center px-4 py-5 borderBottom">
+      <header className="flex justify-between items-center px-4 py-5  bg-slate-950 bg-opacity-10 shadow-md ">
         <div className="flex items-center gap-5">
           <img
             src={`${participant?.photoURL || "/avatar.png"}`}
@@ -208,38 +209,18 @@ const ChatWindow = () => {
       </header>
 
       {/* Chat Body */}
-      <div className="flex flex-col gap-3 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
+      <div className="flex flex-col gap-3 px-16 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
         {messages.map((message) => (
           <Message message={message} key={message.createdAt.getTime()} />
         ))}
         <div ref={endRef}></div>
       </div>
-      <footer className="w-full bg-slate-800 p-3">
-      <MessageInput  chatId={chatId}/>
-      </footer>  
+      <footer className="w-full bg-slate-950 bg-opacity-30 p-3">
+        <MessageInput chatId={chatId} />
+      </footer>
     </div>
   );
 };
 
-const Message = ({ message }: { message: MessageData }) => {
-  // Props => chatId,senderId , content
-  const { currentUser } = useUser();
-  return (
-    <div
-      // key={message.createdAt}
-      className={`flex ${
-        message.senderId === currentUser?.uid ? "justify-end" : "justify-start"
-      }`}
-    >
-      <div
-        className={`${
-          message.senderId === currentUser?.uid ? "bg-blue-600" : "bg-slate-600"
-        } p-2 rounded-xl text-white max-w-[60%]`}
-      >
-        <span className="text-white">{message.content}</span>
-      </div>
-    </div>
-  );
-};
 
 export default ChatWindow;

@@ -33,10 +33,9 @@ const FormModal = () => {
       const matchingUsers = querySnapshot.docs
         .map((doc) => doc.data())
         .filter((user) =>
-          user.displayName.toLowerCase().includes(search.trim().toLowerCase())
+          user.displayName.toLowerCase().includes(search.toLowerCase().trim())
         );
       setFoundusers(matchingUsers);
-      console.log(matchingUsers);
     } catch (error) {
       console.log(error);
     }
@@ -80,7 +79,7 @@ const FormModal = () => {
   return (
     <>
       <button className="bg-slate-800 rounded-lg p-2" onClick={onOpen}>
-        <img src="/plus.png" className="w-6" alt="Add Chat" />
+        <img src="/plus.png" className="w-6" alt="Add Chat" title="Add new Chat" />
       </button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -95,6 +94,7 @@ const FormModal = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                autoFocus
               />
             </FormControl>
             <ul className="mt-4">
@@ -122,8 +122,9 @@ const FormModal = () => {
                     </button>
                   </li>
                 ))
-              ) : (
-                <h2 className="text-center text-xl text-red-600">
+              ) :
+              search && (
+                <h2 className="text-center text-xl font-semibold text-red-800">
                   No users found!
                 </h2>
               )}

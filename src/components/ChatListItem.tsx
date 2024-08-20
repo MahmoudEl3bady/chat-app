@@ -38,7 +38,7 @@ function ChatListItem({ chat }: { chat: ChatData }) {
 
   return (
     <Link to={`/chat/${chat.chatId}`}>
-      <div className="flex items-center justify-between bg-slate-800 shadow-lg text-white rounded py-3 px-3">
+      <div className="flex items-center justify-between bg-gray-900 shadow-sm hover:bg-gray-800 text-white rounded py-3 px-3">
         <div className="flex gap-2 items-center">
           <img
             src={participant?.photoURL || "/avatar.png"}

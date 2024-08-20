@@ -1,6 +1,7 @@
 import { signOut } from "firebase/auth";
 import { useUser } from "../contexts/UserContext";
 import { auth } from "../firebase";
+import { FiLogOut } from "react-icons/fi";
 
 const UserInfo = () => {
   const {userData } =useUser();
@@ -15,7 +16,12 @@ const UserInfo = () => {
         <div className="text-white">{userData?.displayName}</div>
       </div>
       <div className="flex gap-4">
-        <button onClick={() => signOut(auth)} className="text-white font-bold bg-gray-900 hover:bg-black px-4 py-2 rounded">Logout</button>
+        <button
+          onClick={() => signOut(auth)}
+          className="text-red-400 flex items-center gap-1 hover:text-red-300"
+        >
+          Log out <FiLogOut />
+        </button>
       </div>
     </header>
   );
