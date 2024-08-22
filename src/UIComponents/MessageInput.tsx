@@ -1,4 +1,4 @@
-import { useState, memo, useCallback } from "react";
+import { useState, memo, useCallback, useRef, useEffect } from "react";
 import EmojiPicker from "emoji-picker-react";
 import { sendMessage } from "../models/messageModel";
 import { useUser } from "../contexts/UserContext";
@@ -8,6 +8,7 @@ const MessageInput = memo(
   ({ chatId }: { chatId: string |undefined}) => {
     const [message, setMessage] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const inputRef = useRef<any>(null);
     const {currentUser} = useUser();
     const toast=useToast();
     const handleSendMessage = useCallback(async () => {
@@ -35,6 +36,12 @@ const MessageInput = memo(
       setMessage((prev) => prev + emojiObject.emoji);
     }, []);
 
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      } 
+    },[chatId])
+
     return (
       <footer className="flex justify-around items-center w-full">
         <div className="flex item-center gap-4">
@@ -59,6 +66,7 @@ const MessageInput = memo(
               handleSendMessage();
             }
           }}
+          ref={inputRef}
           autoFocus={true}
         />
         <button

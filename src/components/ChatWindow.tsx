@@ -63,7 +63,6 @@ const ChatWindow = () => {
     },
   });
 
- 
 
   const handleDeleteChat = useCallback(
     async (chatId: string) => {
@@ -136,7 +135,7 @@ const ChatWindow = () => {
           const messagesRef = collection(db, "chats", chatId, "messages");
           const q = query(messagesRef, orderBy("createdAt", "asc"));
           const unsubscribe = onSnapshot(q, (snapshot) => {
-            const newMessages = snapshot.docs.map((doc) => {
+              const newMessages = snapshot.docs.map((doc) => {
               const data = doc.data();
               return {
                 senderId: data.senderId,
@@ -158,9 +157,30 @@ const ChatWindow = () => {
   }, [chatId, currentUser]);
 
   useEffect(() => {
+    const getChatData = async () => {
+      if (chatId) {
+        const chatRef = collection(db, "chats", chatId, "messages");
+        const chatMessages = await getDocs(chatRef);
+        const batch = writeBatch(db);
+
+        chatMessages.docs.forEach((msg) => {
+          if (msg.data().senderId !== currentUser?.uid && !msg.data().read) {
+            const messageRef = doc(chatRef, msg.id);
+            batch.update(messageRef, { read: true });
+          }
+        });
+
+        await batch.commit();
+      }
+    };
+
+    getChatData();
+  }, [chatId, currentUser]);
+
+  useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
-
+  
   if (!chatData || !participant) {
     return <div>Loading...</div>;
   }
@@ -209,12 +229,12 @@ const ChatWindow = () => {
       </header>
 
       {/* Chat Body */}
-      <div className="flex flex-col gap-3 px-16 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
+      <main className="flex flex-col gap-3 px-16 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
         {messages.map((message) => (
           <Message message={message} key={message.createdAt.getTime()} />
         ))}
         <div ref={endRef}></div>
-      </div>
+      </main>
       <footer className="w-full bg-slate-950 bg-opacity-30 p-3">
         <MessageInput chatId={chatId} />
       </footer>

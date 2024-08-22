@@ -75,3 +75,16 @@ export async function getUnreadMessages(
   return querySnapshot.docs.map((doc) => doc.data() as MessageData);
 }
 
+
+
+
+export const fetchUnreadMessageCount = async (chatId: string, userId: string) => {
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const q = query(
+    messagesRef,
+    where("read", "==", false),
+    where("senderId", "!=", userId)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.size;
+};

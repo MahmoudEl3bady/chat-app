@@ -5,12 +5,11 @@ import { db } from "../firebase";
 import { useUser } from "../contexts/UserContext";
 import { ChatData } from "../models/chatModel";
 import { SkeletonCircle, SkeletonText } from "@chakra-ui/react";
+import { fetchUnreadMessageCount } from "../models/messageModel";
 
 function ChatListItem({ chat }: { chat: ChatData }) {
   const { currentUser } = useUser();
-
   const participantId = chat.participants.find((id) => id !== currentUser?.uid);
-
   const { data: participant, isLoading } = useQuery({
     queryKey: ["participant", participantId],
     queryFn: async () => {
@@ -20,6 +19,13 @@ function ChatListItem({ chat }: { chat: ChatData }) {
       return docSnap.data();
     },
     enabled: !!participantId,
+  });
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ["unreadCount", chat.chatId, currentUser?.uid],
+    queryFn: async () =>
+      await fetchUnreadMessageCount(chat.chatId, currentUser!.uid),
+    enabled: !!chat.chatId && !!currentUser?.uid,
   });
 
   if (isLoading)
@@ -35,24 +41,26 @@ function ChatListItem({ chat }: { chat: ChatData }) {
         </div>
       </div>
     );
-
   return (
     <Link to={`/chat/${chat.chatId}`}>
       <div className="flex items-center justify-between bg-gray-900 shadow-sm hover:bg-gray-800 text-white rounded py-3 px-3">
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-3 items-center">
           <img
             src={participant?.photoURL || "/avatar.png"}
             alt=""
             className="w-12 h-12 rounded-full"
           />
-          <span className="text-white">{participant?.displayName}</span>
+          <div className="">
+            <p className="text-white font-medium">{participant?.displayName}</p>
+            <p className="text-slate-400">{chat.lastMessage.split(" ").slice(0, 2)}</p>
+          </div>
         </div>
         <div className="text-sm flex flex-col items-end gap-2">
-          <p>
-            {chat.lastMessage.length > 20
-              ? chat.lastMessage.substring(0, 20)
-              : chat.lastMessage}
-          </p>
+          {unreadCount!=0 &&
+          <span className="h-5 w-5  rounded-full text-xs font-semibold bg-blue-600 flex text-gray-100 items-center justify-center">
+            {unreadCount} 
+          </span>
+            }
           <p className="text-slate-400">
             {
               new Date(chat.lastMessageTimestamp?.toDate())
@@ -65,6 +73,5 @@ function ChatListItem({ chat }: { chat: ChatData }) {
     </Link>
   );
 }
-
 
 export default ChatListItem;

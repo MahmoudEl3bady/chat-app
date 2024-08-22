@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChatData} from "../models/chatModel";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import FormModal from "../UIComponents/Modal";
 import { useUser } from "../contexts/UserContext";
@@ -16,7 +16,7 @@ const ChatList = () => {
      const q = query(
        chatsRef,
        where("participants", "array-contains", currentUser?.uid)
-     );
+     )
      const querySnapshot = await getDocs(q);
      return querySnapshot.docs.map((doc) => ({
        id: doc.id,
