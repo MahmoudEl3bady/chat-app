@@ -5,6 +5,7 @@ import {
   getDoc,
   updateDoc,
   serverTimestamp,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -12,7 +13,7 @@ export interface UserData {
   displayName: string | null;
   email: string | null;
   photoURL: string | null;
-  lastSeen: Date;
+  lastSeen: Timestamp;
   uid: string ;
 }
 

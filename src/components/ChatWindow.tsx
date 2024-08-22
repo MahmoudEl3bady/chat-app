@@ -26,6 +26,8 @@ import { CiMenuKebab, CiSearch } from "react-icons/ci";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import MessageInput from "../UIComponents/MessageInput";
 import Message from "./Message";
+import { formatTimestamp, userLastSeen } from "../utils/dateHelper";
+import { formatDistanceToNow } from "date-fns";
 
 const ChatWindow = () => {
   const [chatData, setChatData] = useState<ChatData | null>(null);
@@ -62,7 +64,6 @@ const ChatWindow = () => {
       });
     },
   });
-
 
   const handleDeleteChat = useCallback(
     async (chatId: string) => {
@@ -135,7 +136,7 @@ const ChatWindow = () => {
           const messagesRef = collection(db, "chats", chatId, "messages");
           const q = query(messagesRef, orderBy("createdAt", "asc"));
           const unsubscribe = onSnapshot(q, (snapshot) => {
-              const newMessages = snapshot.docs.map((doc) => {
+            const newMessages = snapshot.docs.map((doc) => {
               const data = doc.data();
               return {
                 senderId: data.senderId,
@@ -180,7 +181,7 @@ const ChatWindow = () => {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
-  
+
   if (!chatData || !participant) {
     return <div>Loading...</div>;
   }
@@ -192,15 +193,15 @@ const ChatWindow = () => {
           <img
             src={`${participant?.photoURL || "/avatar.png"}`}
             alt=""
-            className="w-12 h-12 rounded-full"
+            className="w-11 h-11 rounded-full"
           />
-          <div className="flex flex-col  items-center">
-            <span className="text-white font-bold">
+          <div className="flex flex-col  items-start">
+            <p className="text-white font-bold">
               {participant?.displayName}
-            </span>
-            <span className="text-green-600 text-sm">
-              {new Date(participant.lastSeen).toLocaleString().split(",")[1]}
-            </span>
+            </p>
+            <p className="text-green-500 text-sm">
+              {/* {formatTimestamp(participant?.lastSeen)}  */} online
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -231,7 +232,7 @@ const ChatWindow = () => {
       {/* Chat Body */}
       <main className="flex flex-col gap-3 px-16 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
         {messages.map((message) => (
-          <Message message={message} key={message.createdAt.getTime()} />
+          <Message message={message} key={message.content} />
         ))}
         <div ref={endRef}></div>
       </main>
@@ -241,6 +242,5 @@ const ChatWindow = () => {
     </div>
   );
 };
-
 
 export default ChatWindow;

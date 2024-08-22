@@ -13,6 +13,7 @@ import {
   onSnapshot,
   writeBatch,
   deleteDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -29,9 +30,9 @@ export async function createChat(participants: string[]): Promise<string> {
   const chatData: ChatData = {
     chatId: chatRef.id,
     participants,
-    createdAt: Timestamp.now(),
+    createdAt: serverTimestamp() as Timestamp,
     lastMessage: "",
-    lastMessageTimestamp: Timestamp.now(),
+    lastMessageTimestamp: serverTimestamp() as Timestamp,
   };
   await setDoc(chatRef, chatData);
   return chatRef.id;

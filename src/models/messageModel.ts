@@ -18,7 +18,7 @@ import { db } from "../firebase";
 export interface MessageData {
   senderId: string;
   content: string;
-  createdAt: Date;
+  createdAt: Timestamp;
   read: boolean;
 }
 
@@ -30,7 +30,7 @@ export async function sendMessage(
   const messageData: MessageData = {
     senderId,
     content,
-    createdAt: new Date(),
+    createdAt: serverTimestamp() as Timestamp,
     read: false,
   };
 
@@ -74,10 +74,6 @@ export async function getUnreadMessages(
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map((doc) => doc.data() as MessageData);
 }
-
-
-
-
 export const fetchUnreadMessageCount = async (chatId: string, userId: string) => {
   const messagesRef = collection(db, "chats", chatId, "messages");
   const q = query(

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ChatData} from "../models/chatModel";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { ChatData } from "../models/chatModel";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import FormModal from "../UIComponents/Modal";
 import { useUser } from "../contexts/UserContext";
@@ -10,28 +10,25 @@ import ChatListItem from "./ChatListItem";
 
 const ChatList = () => {
   const { currentUser } = useUser();
-  const [search,setSearch] = useState('');
-   const fetchUserChats = async () => {
-     const chatsRef = collection(db, "chats");
-     const q = query(
-       chatsRef,
-       where("participants", "array-contains", currentUser?.uid)
-     )
-     const querySnapshot = await getDocs(q);
-     return querySnapshot.docs.map((doc) => ({
-       id: doc.id,
-       ...doc.data(),
-     })) as unknown as ChatData[];
-   };
-   const {
-     data: chats,
-     isLoading,
-   } = useQuery({
-     queryKey: ["chats", currentUser?.uid],
-     queryFn: fetchUserChats,
-     enabled: !!currentUser?.uid,
-   });
-   if(isLoading) return <h1>Loading...?</h1>
+  const [search, setSearch] = useState("");
+  const fetchUserChats = async () => {
+    const chatsRef = collection(db, "chats");
+    const q = query(
+      chatsRef,
+      where("participants", "array-contains", currentUser?.uid)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as unknown as ChatData[];
+  };
+  const { data: chats, isLoading } = useQuery({
+    queryKey: ["chats", currentUser?.uid],
+    queryFn: fetchUserChats,
+    enabled: !!currentUser?.uid,
+  });
+  if (isLoading) return <h1>Loading...?</h1>;
 
   return (
     <aside className="flex flex-col gap-5">
@@ -50,7 +47,10 @@ const ChatList = () => {
       </div>
       <div className="flex flex-col gap-3">
         {chats!.map((chat) => (
-          <ChatListItem key={chat.createdAt.toDate().toISOString()} chat={chat} />
+          <ChatListItem
+            key={chat.chatId}
+            chat={chat}
+          />
         ))}
       </div>
     </aside>
@@ -58,4 +58,3 @@ const ChatList = () => {
 };
 
 export default ChatList;
-
