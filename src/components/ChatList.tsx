@@ -7,7 +7,13 @@ import { useUser } from "../contexts/UserContext";
 import { useQuery } from "@tanstack/react-query";
 import { CiSearch } from "react-icons/ci";
 import ChatListItem from "./ChatListItem";
-
+import {
+  Box,
+  Flex,
+  Skeleton,
+  SkeletonCircle,
+  VStack,
+} from "@chakra-ui/react";
 const ChatList = () => {
   const { currentUser } = useUser();
   const [search, setSearch] = useState("");
@@ -28,10 +34,32 @@ const ChatList = () => {
     queryFn: fetchUserChats,
     enabled: !!currentUser?.uid,
   });
-  if (isLoading) return <h1>Loading...?</h1>;
+  if (isLoading) {
+     return (
+    <Box>
+      {/* Search and New Chat Button Skeleton */}
+      <Flex p={5} gap={5}>
+        <Skeleton height="40px" flex={1} />
+        <Skeleton height="40px" width="40px" />
+      </Flex>
+
+      {/* Chat List Items Skeleton */}
+      <VStack spacing={3} align="stretch" px={5}>
+        {[...Array(5)].map((_, i) => (
+          <Flex key={i} alignItems="center">
+            <SkeletonCircle size="10" mr={3} />
+            <Box flex={1}>
+              <Skeleton height="20px" width="150px" mb={2} />
+              <Skeleton height="16px" width="200px" />
+            </Box>
+          </Flex>
+        ))}
+      </VStack>
+    </Box>
+  );}
 
   return (
-    <aside className="flex flex-col gap-5">
+    <aside className="flex flex-col gap-5 ">
       <div className="flex items-center gap-5 p-5">
         <div className="flex items-center gap-3 px-1 rounded-lg py-1 bg-slate-800">
           <CiSearch style={{ color: "white" }} size={24} />

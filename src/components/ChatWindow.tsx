@@ -26,10 +26,17 @@ import { CiMenuKebab, CiSearch } from "react-icons/ci";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import MessageInput from "../UIComponents/MessageInput";
 import Message from "./Message";
-import { formatTimestamp, userLastSeen } from "../utils/dateHelper";
-import { formatDistanceToNow } from "date-fns";
+import { RxHamburgerMenu } from "react-icons/rx";
+import {
+  Box,
+  Flex,
+  Skeleton,
+  SkeletonCircle,
+  SkeletonText,
+  VStack,
+} from "@chakra-ui/react";
 
-const ChatWindow = () => {
+const ChatWindow = ({onBack , isMobile}:{onBack:()=>void | undefined,isMobile:boolean}) => {
   const [chatData, setChatData] = useState<ChatData | null>(null);
   const [participant, setParticipant] = useState<UserData | null>(null);
   const [messages, setMessages] = useState<MessageData[]>([]);
@@ -183,12 +190,52 @@ const ChatWindow = () => {
   }, [messages]);
 
   if (!chatData || !participant) {
-    return <div>Loading...</div>;
+   return (
+     <Box height="100vh" display="flex" flexDirection="column">
+       {/* Header Skeleton */}
+       <Flex p={4} bg="gray.800" alignItems="center">
+         <SkeletonCircle size="10" mr={3} />
+         <Box flex={1}>
+           <Skeleton height="20px" width="150px" mb={2} />
+           <Skeleton height="14px" width="100px" />
+         </Box>
+         <Skeleton height="24px" width="24px" mr={3} />
+         <Skeleton height="24px" width="24px" />
+       </Flex>
+
+       {/* Messages Skeleton */}
+       <VStack flex={1} overflowY="auto" spacing={4} p={4}>
+         {[...Array(6)].map((_, i) => (
+           <Flex
+             key={i}
+             w="100%"
+             justifyContent={i % 2 === 0 ? "flex-end" : "flex-start"}
+           >
+             <Box maxW="70%">
+               <SkeletonText noOfLines={2} spacing="2" />
+             </Box>
+           </Flex>
+         ))}
+       </VStack>
+
+       {/* Input Skeleton */}
+       <Flex p={4} bg="gray.800">
+         <Skeleton height="40px" flex={1} mr={2} />
+         <Skeleton height="40px" width="40px" />
+       </Flex>
+     </Box>
+   );
+
   }
   return (
-    <div className="flex flex-col w-[80%] h-screen borderRight relative">
+    <div className="flex flex-col xs:w-[100%]  h-screen borderRight relative">
       {/* Chat Header */}
       <header className="flex justify-between items-center px-4 py-5  bg-slate-950 bg-opacity-10 shadow-md ">
+        {onBack && (
+          <button onClick={onBack} className="text-white mr-3">
+            <RxHamburgerMenu />
+          </button>
+        )}
         <div className="flex items-center gap-5">
           <img
             src={`${participant?.photoURL || "/avatar.png"}`}
@@ -196,9 +243,7 @@ const ChatWindow = () => {
             className="w-11 h-11 rounded-full"
           />
           <div className="flex flex-col  items-start">
-            <p className="text-white font-bold">
-              {participant?.displayName}
-            </p>
+            <p className="text-white font-bold">{participant?.displayName}</p>
             <p className="text-green-500 text-sm">
               {/* {formatTimestamp(participant?.lastSeen)}  */} online
             </p>
@@ -230,13 +275,13 @@ const ChatWindow = () => {
       </header>
 
       {/* Chat Body */}
-      <main className="flex flex-col gap-3 px-16 h-[80vh] overflow-scroll overflow-x-hidden p-3 ">
+      <main className={`flex flex-col gap-3 ${!isMobile?"px-16":"px-3"} px-16 h-[80vh] overflow-scroll overflow-x-hidden `}>
         {messages.map((message) => (
           <Message message={message} key={message.content} />
         ))}
         <div ref={endRef}></div>
       </main>
-      <footer className="w-full bg-slate-950 bg-opacity-30 p-3">
+      <footer className={`w-full bg-slate-950 bg-opacity-30 ${isMobile?"p-1 absolute bottom-1":"p-3"}`}>
         <MessageInput chatId={chatId} />
       </footer>
     </div>

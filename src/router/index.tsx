@@ -7,8 +7,6 @@ import {
 import Login from "../pages/Login";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Home from "../pages/Home";
-import ChatWindow from "../components/ChatWindow";
-
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -21,7 +19,7 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         }
       >
-        <Route path="chat/:chatId" element={<ChatWindow />} />
+        <Route path="chat/:chatId" element={<Home/>} />
       </Route>
     </>
   )

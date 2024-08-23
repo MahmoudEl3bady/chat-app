@@ -1,13 +1,16 @@
-import ChatList from "./ChatList"
-import UserInfo from "./UserInfo"
+// List.tsx
+import ChatList from "./ChatList";
+import UserInfo from "./UserInfo";
 
 const List = () => {
   return (
-    <div className="borderRight h-screen w-[30%]">
-       <UserInfo />
-       <ChatList  />
+    <div className="flex flex-col h-full">
+      <UserInfo />
+      <div className="flex-grow overflow-y-auto">
+        <ChatList />
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default List
+export default List;
