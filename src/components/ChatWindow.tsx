@@ -36,7 +36,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-const ChatWindow = ({onBack , isMobile}:{onBack:()=>void | undefined,isMobile:boolean}) => {
+const ChatWindow = ({onBack , isMobile}:{onBack:any,isMobile:boolean}) => {
   const [chatData, setChatData] = useState<ChatData | null>(null);
   const [participant, setParticipant] = useState<UserData | null>(null);
   const [messages, setMessages] = useState<MessageData[]>([]);

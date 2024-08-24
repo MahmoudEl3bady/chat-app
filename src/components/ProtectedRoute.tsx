@@ -24,7 +24,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!currentUser) {
-    return null; // Render nothing while redirecting
+    return null; 
   }
 
   return <>{children}</>;

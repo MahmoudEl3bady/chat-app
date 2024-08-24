@@ -9,6 +9,7 @@ import {
 import { useToast } from "@chakra-ui/react";
 import { FcGoogle } from "react-icons/fc";
 import { useUser } from "../contexts/UserContext";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 const Login = () => {
   const navigate = useNavigate();
   const toast = useToast();
@@ -25,7 +26,7 @@ const Login = () => {
           displayName: loggedUser.displayName,
           email: loggedUser.email,
           photoURL: loggedUser.photoURL,
-          lastSeen: new Date(),
+          lastSeen: serverTimestamp() as Timestamp,
           uid: loggedUser.uid,
         };
         await createUser(userData);
