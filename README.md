@@ -1,6 +1,6 @@
 # React Firebase Chat App
 
-A real-time chat application built with React,TypeScript and Firebase.
+A real-time chat application built with React,TypeScript,TailwindCSS and Firebase.
 
 ## Features
 
@@ -9,13 +9,13 @@ A real-time chat application built with React,TypeScript and Firebase.
 - Create and delete chats
 - Clear chat history
 - Responsive design
-- Search functionality
 
 ## Technologies
 
 - React
 - TypeScript
 - Firebase (Firestore, Authentication)
+- TailwindCSS
 - Chakra UI
 - React Query
 - React Router
