@@ -22,3 +22,4 @@ A real-time chat application built with React,TypeScript,TailwindCSS and Firebas
 - Date-fns
 - React Icons
 
+[latest.webm](https://github.com/user-attachments/assets/88f806fb-2c69-401d-8541-6df0d3cd3856)
