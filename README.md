@@ -4,11 +4,12 @@ A real-time chat application built with React,TypeScript,TailwindCSS and Firebas
 
 ## Features
 
-- Real-time messaging
-- User authentication
-- Create and delete chats
-- Clear chat history
-- Responsive design
+- Supports instant messaging with real-time updates .
+- Features a responsive UI optimized for both mobile and desktop devices.
+- Utilizes Firebase for user authentication (Google login), data storage, and real-time database synchronization.
+- Includes features like message read receipts, chat history management, and user-friendly state management with
+React Context and React Query.
+- Clear and delete chat functionality. 
 
 ## Technologies
 
